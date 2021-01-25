@@ -25,6 +25,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Looper;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
@@ -47,6 +48,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -71,11 +73,18 @@ public class MainActivity extends AppCompatActivity {
     ImageView captureImage;
     ImageCapture imageCapture;
     Button loadFromLibrary;
-
+    OkHttpClient client;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        client = new OkHttpClient.Builder()
+                .connectTimeout(0, TimeUnit.SECONDS)
+                .readTimeout(0, TimeUnit.SECONDS)
+                .writeTimeout(0, TimeUnit.SECONDS)
+                .build();
+
 
         mPreviewView = findViewById(R.id.previewView);
         captureImage = findViewById(R.id.captureImg);
@@ -111,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
         }, ContextCompat.getMainExecutor(this));
     }
 
+
     void bindPreview(@NonNull ProcessCameraProvider cameraProvider) {
 
         Preview preview = new Preview.Builder()
@@ -130,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void analyze(@NonNull ImageProxy image) {
                 int rotationDegrees = image.getImageInfo().getRotationDegrees();
-                Log.d("DETECT", "Rotation degrees: " + String.valueOf(rotationDegrees));
+                Log.d("DET", "Rotation degrees: " + String.valueOf(rotationDegrees));
 
             }
         });
@@ -176,25 +186,25 @@ public class MainActivity extends AppCompatActivity {
     private void makePhoto(){
 
 
-            SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyyMMddHHmmss", Locale.US);
-            File file = new File(getBatchDirectoryName(), mDateFormat.format(new Date())+ ".jpg");
+        SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyyMMddHHmmss", Locale.US);
+        File file = new File(getBatchDirectoryName(), mDateFormat.format(new Date())+ ".jpg");
 
-            ImageCapture.OutputFileOptions outputFileOptions = new ImageCapture.OutputFileOptions.Builder(file).build();
-            imageCapture.takePicture(outputFileOptions, executor, new ImageCapture.OnImageSavedCallback () {
-                @Override
-                public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(MainActivity.this, "Image Saved successfully", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-                @Override
-                public void onError(@NonNull ImageCaptureException error) {
-                    error.printStackTrace();
-                }
-            });
+        ImageCapture.OutputFileOptions outputFileOptions = new ImageCapture.OutputFileOptions.Builder(file).build();
+        imageCapture.takePicture(outputFileOptions, executor, new ImageCapture.OnImageSavedCallback () {
+            @Override
+            public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainActivity.this, "Image Saved successfully", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+            @Override
+            public void onError(@NonNull ImageCaptureException error) {
+                error.printStackTrace();
+            }
+        });
     }
 
     public String getBatchDirectoryName() {
@@ -262,7 +272,7 @@ public class MainActivity extends AppCompatActivity {
 
             RequestBody postBodyImage = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
-                    .addFormDataPart("image", "androidFlask.jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray))
+                    .addFormDataPart("image", "androidFlask.jpg", RequestBody.create(MediaType.parse("image/jpeg"), byteArray))
                     .build();
 
             postRequest(postUrl, postBodyImage);
@@ -273,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
 
     void postRequest(String postUrl, RequestBody postBody) {
 
-        OkHttpClient client = new OkHttpClient();
+
 
         Request request = new Request.Builder()
                 .url(postUrl)
@@ -298,16 +308,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call call, final Response response) throws IOException {
                 // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Toast.makeText(MainActivity.this, response.body().string(),Toast.LENGTH_SHORT).show();
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                if (response.isSuccessful()){
+                    final Bitmap bitmap = BitmapFactory.decodeStream(response.body().byteStream());
+                    // Remember to set the bitmap in the main thread.
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            captureImage.setImageBitmap(bitmap);
                         }
-                    }
-                });
+                    });
+                }else {
+                    //Handle the error
+                }
             }
         });
     }
