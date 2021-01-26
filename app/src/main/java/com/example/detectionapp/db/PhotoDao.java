@@ -12,6 +12,7 @@ import java.util.List;
 
 @Dao
 public interface PhotoDao {
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(Photo photo);
 
@@ -21,10 +22,20 @@ public interface PhotoDao {
     @Delete
     public void delete(Photo photo);
 
+
     @Query("DELETE FROM photo")
     public void deleteAll();
 
-    @Query("SELECT * FROM photo ORDER BY creationDate")
-    public LiveData<List<Photo>> findAll();
+    @Query("DELETE FROM photo WHERE uid = (:Id)")
+    void deletePhotoById (int Id);
+
+
+    @Query("SELECT * FROM photo ORDER BY filename")
+    public List<Photo> getAllAsc();
+
+    @Query("SELECT * FROM photo ORDER BY filename DESC")
+    public List<Photo> getAllDesc();
+
+
 
 }

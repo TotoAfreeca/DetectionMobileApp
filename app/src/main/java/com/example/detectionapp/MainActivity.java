@@ -2,7 +2,6 @@ package com.example.detectionapp;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
@@ -14,34 +13,48 @@ import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.room.Room;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
+
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.Looper;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
 import android.util.Log;
+import android.util.Rational;
 import android.util.Size;
+import android.view.Surface;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.example.detectionapp.db.AppDatabase;
+import com.example.detectionapp.db.Photo;
+import com.example.detectionapp.db.PhotoDao;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import org.opencv.android.OpenCVLoader;
+import org.opencv.android.Utils;
+import org.opencv.core.Mat;
+import org.opencv.dnn.Dnn;
+import org.opencv.dnn.Net;
+
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -61,23 +74,37 @@ import okhttp3.Response;
 
 import static com.example.detectionapp.PathHelper.getPath;
 
+
 public class MainActivity extends AppCompatActivity {
 
     private Executor executor = Executors.newSingleThreadExecutor();
     private int REQUEST_CODE_PERMISSIONS = 1001;
     private final String[] REQUIRED_PERMISSIONS = new String[]{"android.permission.CAMERA", "android.permission.WRITE_EXTERNAL_STORAGE"};
+    private Net mobileNet;
+
 
     String selectedImagePath;
 
     PreviewView mPreviewView;
     ImageView captureImage;
+    ImageView drawableImageView;
     ImageCapture imageCapture;
     Button loadFromLibrary;
+    Button goToPhotos;
     OkHttpClient client;
+    AppDatabase db;
+    String photoName;
+    String filePath;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        db = AppDatabase.getDatabase(this);
+
 
         client = new OkHttpClient.Builder()
                 .connectTimeout(0, TimeUnit.SECONDS)
@@ -87,16 +114,25 @@ public class MainActivity extends AppCompatActivity {
 
 
         mPreviewView = findViewById(R.id.previewView);
+
         captureImage = findViewById(R.id.captureImg);
+        drawableImageView = findViewById(R.id.drawableImageView);
+        goToPhotos = findViewById(R.id.goToPhotosButton);
 
         if(allPermissionsGranted()){
+            //FrameDetectorHelper.loadMobileNet(this);
             startCamera(); //start camera if permission has been granted by user
+
         } else{
             ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS);
         }
 
         loadFromLibrary = findViewById(R.id.load_from_library);
 
+        goToPhotos.setOnClickListener(v -> {
+            Intent intentList = new Intent(this, PhotoListActivity.class);
+            startActivity(intentList);
+        });
 
     }
 
@@ -121,6 +157,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
+
     void bindPreview(@NonNull ProcessCameraProvider cameraProvider) {
 
         Preview preview = new Preview.Builder()
@@ -130,9 +168,11 @@ public class MainActivity extends AppCompatActivity {
                 .requireLensFacing(CameraSelector.LENS_FACING_BACK)
                 .build();
 
+        //Size screen = new Size(mPreviewView.get(), mPreviewView.getHeight()); //size of the screen
+
         ImageAnalysis imageAnalysis =
                 new ImageAnalysis.Builder()
-                        .setTargetResolution(new Size(1280, 720))
+
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                         .build();
 
@@ -141,6 +181,22 @@ public class MainActivity extends AppCompatActivity {
             public void analyze(@NonNull ImageProxy image) {
                 int rotationDegrees = image.getImageInfo().getRotationDegrees();
                 Log.d("DET", "Rotation degrees: " + String.valueOf(rotationDegrees));
+
+//                @SuppressLint("UnsafeExperimentalUsageError")
+//                Image androidImage = image.getImage();
+//                Bitmap bitmap = toBitmap(androidImage);
+//                Mat mat = FrameDetectorHelper.getDetectedImage(bitmap);
+//                Utils.matToBitmap(mat, bitmap);
+
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        drawableImageView.setImageBitmap(bitmap);
+//                        drawableImageView.setRotation(90);
+//                    }
+//                });
+
+                image.close();
 
             }
         });
@@ -159,23 +215,25 @@ public class MainActivity extends AppCompatActivity {
 
         captureImage.setOnClickListener(v -> {
 
-            SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyyMMddHHmmss", Locale.US);
-            File file = new File(getBatchDirectoryName(), mDateFormat.format(new Date())+ ".jpg");
-
+            File file = new File(getBatchDirectoryName(), System.currentTimeMillis() + ".jpg");
+            photoName = String.valueOf(System.currentTimeMillis());
             ImageCapture.OutputFileOptions outputFileOptions = new ImageCapture.OutputFileOptions.Builder(file).build();
             imageCapture.takePicture(outputFileOptions, executor, new ImageCapture.OnImageSavedCallback () {
+
                 @Override
                 public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
                     Uri savedUri = Uri.fromFile(file);
+                    filePath = savedUri.toString();
 
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
-
+                            new AddPhoto().execute();
                             Toast.makeText(MainActivity.this, "Image Saved successfully at: "+ savedUri, Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
+
                 @Override
                 public void onError(@NonNull ImageCaptureException error) {
                     error.printStackTrace();
@@ -183,29 +241,53 @@ public class MainActivity extends AppCompatActivity {
             });
         });
     }
-    private void makePhoto(){
 
 
-        SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyyMMddHHmmss", Locale.US);
-        File file = new File(getBatchDirectoryName(), mDateFormat.format(new Date())+ ".jpg");
+    class AddPhoto extends AsyncTask<Void, Void, Photo> {
 
-        ImageCapture.OutputFileOptions outputFileOptions = new ImageCapture.OutputFileOptions.Builder(file).build();
-        imageCapture.takePicture(outputFileOptions, executor, new ImageCapture.OnImageSavedCallback () {
-            @Override
-            public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(MainActivity.this, "Image Saved successfully", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-            @Override
-            public void onError(@NonNull ImageCaptureException error) {
-                error.printStackTrace();
-            }
-        });
+        protected Photo doInBackground(Void... voids) {
+
+            PhotoDao photoDao = db.getPhotoDao();
+            Photo photo = new Photo();
+            photo.filename = photoName;
+            photo.filepath = filePath;
+            photoDao.insert(photo);
+            Log.e("added", photo.filename);
+            return photo;
+        }
+
+        @Override
+        protected void onPostExecute(Photo result) {
+
+            Toast.makeText(MainActivity.this, getResources().getString(R.string.photo_created), Toast.LENGTH_LONG).show();
+        }
     }
+
+
+//    private Bitmap toBitmap(Image image){
+//        Image.Plane[] planes = image.getPlanes();
+//        ByteBuffer yBuffer = planes[0].getBuffer();
+//        ByteBuffer uBuffer = planes[1].getBuffer();
+//        ByteBuffer vBuffer = planes[2].getBuffer();
+//
+//        int ySize = yBuffer.remaining();
+//        int uSize = uBuffer.remaining();
+//        int vSize = vBuffer.remaining();
+//
+//        byte[] nv21 = new byte[ySize + uSize + vSize];
+//        //U and V are swapped
+//        yBuffer.get(nv21, 0, ySize);
+//        vBuffer.get(nv21, ySize, vSize);
+//        uBuffer.get(nv21, ySize + vSize, uSize);
+//
+//        YuvImage yuvImage = new YuvImage(nv21, ImageFormat.NV21, image.getWidth(), image.getHeight(), null);
+//        ByteArrayOutputStream out = new ByteArrayOutputStream();
+//        yuvImage.compressToJpeg(new Rect(0, 0, yuvImage.getWidth(), yuvImage.getHeight()), 75, out);
+//
+//        byte[] imageBytes = out.toByteArray();
+//        return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+//    }
+
 
     public String getBatchDirectoryName() {
 

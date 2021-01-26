@@ -18,7 +18,9 @@ public interface DetectionDao {
     void update(Detection... detections);
 
     @Delete
-    void delete(Detection... detections);    @Query("SELECT * FROM Detection")
+    void delete(Detection... detections);
+
+    @Query("SELECT * FROM Detection")
     List<Detection> getAllDetections();
 
     @Query("SELECT * FROM Detection WHERE photoId=:photoId")

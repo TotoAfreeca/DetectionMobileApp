@@ -47,16 +47,19 @@ dependencies {
     implementation 'com.quickbirdstudios:opencv:3.4.1'
     //Room
     implementation 'androidx.room:room-runtime:2.2.2'
-    annotationProcessor 'androidx.room:room-runtime:2.2.2'
+    annotationProcessor 'androidx.room:room-compiler:2.2.2'
     androidTestImplementation 'androidx.room:room-testing:2.2.2'
+
     implementation 'androidx.lifecycle:lifecycle-common-java8:2.1.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
     implementation 'com.google.android.material:material:1.0.0'
 
     //Picasso
-    implementation 'com.squareup.picasso:picasso:2.1.1'
+    implementation 'com.squareup.picasso:picasso:2.71828'
     //Retrofit & HTML
     implementation 'com.squareup.retrofit2:retrofit:2.6.2'
     implementation 'com.squareup.retrofit2:converter-gson:2.6.2'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.10.0'
+
+
 }

@@ -1,5 +1,6 @@
 package com.example.detectionapp.db;
 
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -7,37 +8,13 @@ import java.util.Date;
 
 @Entity(tableName = "photo")
 public class Photo {
-    public Photo(String filepath, Date creationDate)
-    {
-        this.filepath = filepath;
-        this.creationDate = creationDate;
-    }
     @PrimaryKey(autoGenerate = true)
-    private int id;
-    private String filepath;
-    private Date creationDate;
+    public int uid;
 
-    public int getId() {
-        return id;
-    }
+    @ColumnInfo(name = "filename")
+    public String filename;
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    @ColumnInfo(name = "filepath")
+    public String filepath;
 
-    public String getFilepath() {
-        return filepath;
-    }
-
-    public void setFilepath(String filepath) {
-        this.filepath = filepath;
-    }
-
-    public Date getCreationDate() {
-        return creationDate;
-    }
-
-    public void setCreationDate(Date creationDate) {
-        this.creationDate = creationDate;
-    }
 }
