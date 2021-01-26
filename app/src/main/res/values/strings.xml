@@ -3,7 +3,8 @@
     <string name="capture">Capture</string>
 
     <string name="take_photo">Take a photo</string>
-    <string name="delete_photo_button">Delete Photo</string>
+    <string name="delete_photo_button">Delete</string>
     <string name="go_to_photos">Go to Photos </string>
     <string name="photo_created">Successfully saved photo</string>
+    <string name="detect_photo">Detect</string>
 </resources>

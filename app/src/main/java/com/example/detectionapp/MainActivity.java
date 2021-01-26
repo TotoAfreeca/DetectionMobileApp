@@ -13,6 +13,7 @@ import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.room.Room;
 
 import android.annotation.SuppressLint;
@@ -41,6 +42,7 @@ import android.widget.Toast;
 import com.example.detectionapp.db.AppDatabase;
 import com.example.detectionapp.db.Photo;
 import com.example.detectionapp.db.PhotoDao;
+import com.example.detectionapp.db.PhotoViewModel;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.opencv.android.OpenCVLoader;
@@ -96,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
     String photoName;
     String filePath;
 
+    private PhotoViewModel photoViewModel;
 
 
     @Override
@@ -103,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        db = AppDatabase.getDatabase(this);
+        photoViewModel = ViewModelProviders.of(this).get(PhotoViewModel.class);
 
 
         client = new OkHttpClient.Builder()
@@ -247,11 +250,11 @@ public class MainActivity extends AppCompatActivity {
 
         protected Photo doInBackground(Void... voids) {
 
-            PhotoDao photoDao = db.getPhotoDao();
+
             Photo photo = new Photo();
             photo.filename = photoName;
             photo.filepath = filePath;
-            photoDao.insert(photo);
+            photoViewModel.insert(photo);
             Log.e("added", photo.filename);
             return photo;
         }

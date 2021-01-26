@@ -31,7 +31,7 @@
                 />
 
             <Button
-                android:id="@+id/button_delete_photo"
+                android:id="@+id/test"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/delete_photo_button"

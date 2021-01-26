@@ -17,7 +17,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DetectionApp"
         android:usesCleartextTraffic="true">
-        <activity android:name=".PhotoListActivity"></activity>
+        <activity android:name=".FullScreenActivity"></activity>
+        <activity android:name=".PhotoListActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

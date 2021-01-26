@@ -29,6 +29,9 @@ public interface PhotoDao {
     @Query("DELETE FROM photo WHERE uid = (:Id)")
     void deletePhotoById (int Id);
 
+    @Query("SELECT * FROM photo ORDER BY filename")
+    public LiveData<List<Photo>> findAll();
+
 
     @Query("SELECT * FROM photo ORDER BY filename")
     public List<Photo> getAllAsc();

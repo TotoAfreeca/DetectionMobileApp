@@ -12,11 +12,13 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/cardview_dark_background"
         tools:ignore="MissingConstraints">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+
 
             <ImageView
                 android:id="@+id/photo_image"
@@ -34,12 +36,37 @@
                 android:layout_height="18dp"
                 android:layout_marginStart="4dp"
                 android:layout_marginLeft="4dp"
-                android:text="title"
+                android:text="name"
 
                 android:textSize="14dp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toEndOf="@+id/photo_image"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/button_detect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginLeft="4dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/detect_photo"
+                app:layout_constraintStart_toEndOf="@+id/photo_image"
+                app:layout_constraintTop_toBottomOf="@id/photo_filename"
+                />
+
+            <Button
+                android:id="@+id/button_delete_photo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/delete_photo_button"
+                app:layout_constraintStart_toEndOf="@+id/button_detect"
+                app:layout_constraintTop_toBottomOf="@id/photo_filename" />
+
+
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

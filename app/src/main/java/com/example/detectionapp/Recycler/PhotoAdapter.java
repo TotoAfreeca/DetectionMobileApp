@@ -8,15 +8,20 @@ import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.detectionapp.FullScreenActivity;
 import com.example.detectionapp.db.Photo;
 import com.example.detectionapp.R;
+import com.example.detectionapp.db.PhotoViewModel;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -26,6 +31,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
     Context context;
     List<Photo> photos;
+    private PhotoViewModel photoViewModel;
 
     public PhotoAdapter(Context ct, List<Photo> list)
     {
@@ -38,6 +44,8 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
     public PhotoViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.photo_list_element, parent, false);
+
+        photoViewModel = ViewModelProviders.of((FragmentActivity) context).get(PhotoViewModel.class);
         return new PhotoViewHolder(view);
     }
 
@@ -64,7 +72,17 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 //                context.startActivity(intent);
             }
         });
+        holder.image.setOnClickListener(v->{
+            Intent intent = new Intent(context,
+                    FullScreenActivity.class);
+            intent.putExtra("filepath", photos.get(position).filepath);
+            intent.putExtra("filename", photos.get(position).filename);
+            context.startActivity(intent);
+        });
 
+        holder.deleteButton.setOnClickListener(v ->{
+            photoViewModel.delete(photos.get(position));
+        });
 
         //holder.image.setImageResource(R.drawable.star_icon);
     }
@@ -73,7 +91,15 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
     @Override
     public int getItemCount() {
-        return photos.size();
+        if (photos != null)
+            return photos.size();
+        else
+            return 0;
+    }
+
+    public void setPhotos(List<Photo> photos){
+        this.photos = photos;
+        notifyDataSetChanged();
     }
 
     public class PhotoViewHolder extends RecyclerView.ViewHolder{
@@ -82,13 +108,16 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
         TextView filepath;
         ImageView image;
         ConstraintLayout mainLayout;
-
+        Button deleteButton;
+        Button detectButton;
 
         public PhotoViewHolder(@NonNull View itemView) {
             super(itemView);
             filename = itemView.findViewById(R.id.photo_filename);
             image = itemView.findViewById(R.id.photo_image);
             mainLayout = itemView.findViewById(R.id.mainLayout);
+            deleteButton = itemView.findViewById(R.id.button_delete_photo);
+            detectButton = itemView.findViewById(R.id.button_detect);
         }
     }
 }
