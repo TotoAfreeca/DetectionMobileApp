@@ -18,6 +18,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.detectionapp.Api.ApiHandler;
 import com.example.detectionapp.FullScreenActivity;
 import com.example.detectionapp.db.Photo;
 import com.example.detectionapp.R;
@@ -32,7 +33,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
     Context context;
     List<Photo> photos;
     private PhotoViewModel photoViewModel;
-
+    ApiHandler apiHandler;
     public PhotoAdapter(Context ct, List<Photo> list)
     {
         context=ct;
@@ -45,6 +46,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.photo_list_element, parent, false);
 
+        apiHandler = new ApiHandler(context);
         photoViewModel = ViewModelProviders.of((FragmentActivity) context).get(PhotoViewModel.class);
         return new PhotoViewHolder(view);
     }
@@ -84,6 +86,11 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
             photoViewModel.delete(photos.get(position));
         });
 
+
+        holder.detectButton.setOnClickListener(v ->{
+            //get detected
+
+        });
         //holder.image.setImageResource(R.drawable.star_icon);
     }
 

@@ -35,17 +35,33 @@ public class AppRepository {
         });
     }
 
+
     void update(Photo photo){
         AppDatabase.databaseWriterExecutor.execute(() ->{
             photoDao.update(photo);
         });
     }
 
-
-
     void insert(Detection detection){
         AppDatabase.databaseWriterExecutor.execute(() ->{
             detectionDao.insert(detection);
+        });
+    }
+
+    void update(Detection detection){
+        AppDatabase.databaseWriterExecutor.execute(() ->{
+            detectionDao.update(detection);
+        });
+    }
+
+    void delete(Detection detection){
+        AppDatabase.databaseWriterExecutor.execute(() ->{
+            detectionDao.delete(detection);
+        });
+    }
+    void findDetectionsForPhoto(int photoId){
+        AppDatabase.databaseWriterExecutor.execute(() ->{
+            detectionDao.findDetectionsForPhoto(photoId);
         });
     }
 }

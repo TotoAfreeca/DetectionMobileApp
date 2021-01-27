@@ -20,8 +20,14 @@ public class Detection {
     @PrimaryKey(autoGenerate = true)
     public int uid;
 
-    @ColumnInfo(name = "filename")
-    public String filename;
+    @ColumnInfo(name = "classname")
+    public String classname;
+
+    @ColumnInfo(name = "probability")
+    public float probability;
+
+    @ColumnInfo(name = "filepath")
+    public String filepath;
 
     @ColumnInfo(name = "photoId")
     public int photoId;

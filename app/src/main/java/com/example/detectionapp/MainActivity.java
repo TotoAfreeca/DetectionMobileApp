@@ -39,6 +39,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.example.detectionapp.Api.ApiHandler;
 import com.example.detectionapp.db.AppDatabase;
 import com.example.detectionapp.db.Photo;
 import com.example.detectionapp.db.PhotoDao;
@@ -75,6 +76,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import static com.example.detectionapp.PathHelper.getPath;
+import static com.example.detectionapp.Utilities.getBatchDirectoryName;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -99,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
     String filePath;
 
     private PhotoViewModel photoViewModel;
-
+    private ApiHandler apiHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,13 +110,7 @@ public class MainActivity extends AppCompatActivity {
 
         photoViewModel = ViewModelProviders.of(this).get(PhotoViewModel.class);
 
-
-        client = new OkHttpClient.Builder()
-                .connectTimeout(0, TimeUnit.SECONDS)
-                .readTimeout(0, TimeUnit.SECONDS)
-                .writeTimeout(0, TimeUnit.SECONDS)
-                .build();
-
+        apiHandler = new ApiHandler(this);
 
         mPreviewView = findViewById(R.id.previewView);
 
@@ -218,8 +214,9 @@ public class MainActivity extends AppCompatActivity {
 
         captureImage.setOnClickListener(v -> {
 
-            File file = new File(getBatchDirectoryName(), System.currentTimeMillis() + ".jpg");
             photoName = String.valueOf(System.currentTimeMillis());
+            File file = new File(getBatchDirectoryName(), photoName + ".jpg");
+
             ImageCapture.OutputFileOptions outputFileOptions = new ImageCapture.OutputFileOptions.Builder(file).build();
             imageCapture.takePicture(outputFileOptions, executor, new ImageCapture.OnImageSavedCallback () {
 
@@ -292,17 +289,7 @@ public class MainActivity extends AppCompatActivity {
 //    }
 
 
-    public String getBatchDirectoryName() {
 
-        String app_folder_path = "";
-        app_folder_path = Environment.getExternalStorageDirectory().toString() + "/images";
-        File dir = new File(app_folder_path);
-        if (!dir.exists() && !dir.mkdirs()) {
-
-        }
-
-        return app_folder_path;
-    }
 
     private boolean allPermissionsGranted(){
 
@@ -345,69 +332,30 @@ public class MainActivity extends AppCompatActivity {
             Uri uri = data.getData();
             selectedImagePath = getPath(getApplicationContext(), uri);
 
-            String postUrl= "http://"+"192.168.1.100:5000/api/test";
+//            String postUrl= "http://"+"192.168.1.100:5000/api/test";
+//
+//            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+//            BitmapFactory.Options options = new BitmapFactory.Options();
+//            options.inPreferredConfig = Bitmap.Config.RGB_565;
+//            // Read BitMap by file path
+//            Bitmap bitmap = BitmapFactory.decodeFile(selectedImagePath, options);
+//            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+//            byte[] byteArray = stream.toByteArray();
+//
+//            RequestBody postBodyImage = new MultipartBody.Builder()
+//                    .setType(MultipartBody.FORM)
+//                    .addFormDataPart("image", "androidFlask.jpg", RequestBody.create(MediaType.parse("image/jpeg"), byteArray))
+//                    .build();
 
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inPreferredConfig = Bitmap.Config.RGB_565;
-            // Read BitMap by file path
-            Bitmap bitmap = BitmapFactory.decodeFile(selectedImagePath, options);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-            byte[] byteArray = stream.toByteArray();
+            apiHandler.getDetectionsFromServer(1, selectedImagePath);
 
-            RequestBody postBodyImage = new MultipartBody.Builder()
-                    .setType(MultipartBody.FORM)
-                    .addFormDataPart("image", "androidFlask.jpg", RequestBody.create(MediaType.parse("image/jpeg"), byteArray))
-                    .build();
 
-            postRequest(postUrl, postBodyImage);
 
             Toast.makeText(getApplicationContext(), selectedImagePath, Toast.LENGTH_LONG).show();
         }
     }
 
-    void postRequest(String postUrl, RequestBody postBody) {
 
-
-
-        Request request = new Request.Builder()
-                .url(postUrl)
-                .post(postBody)
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                // Cancel the post on failure.
-                call.cancel();
-
-                // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(MainActivity.this, "Failed to Connect to Server ",Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-
-            @Override
-            public void onResponse(Call call, final Response response) throws IOException {
-                // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
-                if (response.isSuccessful()){
-                    final Bitmap bitmap = BitmapFactory.decodeStream(response.body().byteStream());
-                    // Remember to set the bitmap in the main thread.
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            captureImage.setImageBitmap(bitmap);
-                        }
-                    });
-                }else {
-                    //Handle the error
-                }
-            }
-        });
-    }
 
 
 }
