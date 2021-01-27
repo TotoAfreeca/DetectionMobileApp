@@ -33,7 +33,8 @@ public class DetectionListActivity extends AppCompatActivity {
 
     Button buttonRemoveList;
     RecyclerView recyclerView;
-    List<Detection> detectionList = new ArrayList<Detection>();;
+    List<Detection> detectionList = new ArrayList<Detection>();
+    ;
     ArrayList<String> listNames;
     String m_Text;
     int photoId;
@@ -43,12 +44,11 @@ public class DetectionListActivity extends AppCompatActivity {
     private DetectionViewModel detectionViewModel;
     ApiHandler apiHandler;
     DetectionAdapter myAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detection_list);
-
-
 
 
         photoId = getIntent().getIntExtra("photoId", 0);
@@ -56,18 +56,18 @@ public class DetectionListActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
 
-        DetectionAdapter myAdapter = new DetectionAdapter(DetectionListActivity.this, detectionList );
+        DetectionAdapter myAdapter = new DetectionAdapter(DetectionListActivity.this, detectionList);
         apiHandler = new ApiHandler(this);
         recyclerView.setAdapter(myAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
+        detectionsCount = findViewById(R.id.detected_objects);
         detectionViewModel = ViewModelProviders.of(this).get(DetectionViewModel.class);
         detectionViewModel.findAll(photoId).observe(this, new Observer<List<Detection>>() {
             @Override
             public void onChanged(List<Detection> detections) {
                 myAdapter.setDetections(detections);
                 detections.size();
-                detectionsCount.setText("test");
+                detectionsCount.setText(getString(R.string.detected_count, detections.size()));
 
             }
         });
@@ -100,23 +100,20 @@ public class DetectionListActivity extends AppCompatActivity {
             alert11.show();
 
 
-
         });
 
 
     }
 
     @Override
-    public void onResume()
-    {
+    public void onResume() {
         super.onResume();
-        //new RefreshList().execute();
-        //new GetDetectionsById().execute();
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        this.finish();
 
-
-
-
-
+    }
 }

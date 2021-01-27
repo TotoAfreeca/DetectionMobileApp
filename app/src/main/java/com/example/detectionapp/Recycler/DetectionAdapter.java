@@ -1,6 +1,9 @@
 package com.example.detectionapp.Recycler;
 
+import android.app.AlertDialog;
+import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,6 +55,35 @@ public class DetectionAdapter extends RecyclerView.Adapter<DetectionAdapter.Dete
     public void onBindViewHolder(@NonNull DetectionViewHolder holder, final int position) {
 
         holder.classname.setText("Class: " + detections.get(position).classname);
+        holder.classname.setOnClickListener(v -> {
+            AlertDialog.Builder builder2 = new AlertDialog.Builder(this.context);
+            builder2.setMessage(R.string.search_online);
+            builder2.setCancelable(true);
+
+            builder2.setPositiveButton(
+                    R.string.yes,
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            Intent intent = new Intent(Intent.ACTION_WEB_SEARCH);
+                            String term = detections.get(position).classname;
+                            intent.putExtra(SearchManager.QUERY, term);
+                            context.startActivity(intent);
+                            dialog.cancel();
+                        }
+                    });
+
+            builder2.setNegativeButton(
+                    R.string.no,
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                        }
+                    });
+
+            AlertDialog alert2 = builder2.create();
+            alert2.show();
+
+        });
         holder.probability.setText("Probability: " + String.valueOf(detections.get(position).probability));
 
 //        Bitmap myBitmap = BitmapFactory.decodeFile(photos.get(position).filepath);

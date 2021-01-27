@@ -14,4 +14,6 @@
     <string name="no">nie</string>
     <string name="load_photo">Wybierz galerii</string>
     <string name="saved_image_to_db">Pomyślnie zapisano obraz do bazy danych</string>
+    <string name="detected_count">Wykrytych obiektów: %1$d</string>
+    <string name="search_online">Czy chcesz wyszukać te hasło w przeglądarce?</string>
 </resources>

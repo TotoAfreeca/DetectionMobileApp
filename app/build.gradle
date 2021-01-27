@@ -44,7 +44,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     //OpenCV
-    implementation 'com.quickbirdstudios:opencv:3.4.1'
+    //implementation 'com.quickbirdstudios:opencv:3.4.1'
     //Room
     implementation 'androidx.room:room-runtime:2.2.2'
     annotationProcessor 'androidx.room:room-compiler:2.2.2'
@@ -56,9 +56,8 @@ dependencies {
 
     //Picasso
     implementation 'com.squareup.picasso:picasso:2.71828'
-    //Retrofit & HTML
-    implementation 'com.squareup.retrofit2:retrofit:2.6.2'
-    implementation 'com.squareup.retrofit2:converter-gson:2.6.2'
+
+    //Ok http3
     implementation 'com.squareup.okhttp3:logging-interceptor:3.10.0'
 
     //Gson

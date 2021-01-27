@@ -140,8 +140,7 @@ public class MainActivity extends AppCompatActivity {
                     bindPreview(cameraProvider);
 
                 } catch (ExecutionException | InterruptedException e) {
-                    // No errors need to be handled for this Future.
-                    // This should never be reached.
+                    Log.d("Camer", "Error while starting the camera");
                 }
             }
         }, ContextCompat.getMainExecutor(this));
@@ -163,7 +162,6 @@ public class MainActivity extends AppCompatActivity {
 
         ImageAnalysis imageAnalysis =
                 new ImageAnalysis.Builder()
-
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                         .build();
 
@@ -172,22 +170,6 @@ public class MainActivity extends AppCompatActivity {
             public void analyze(@NonNull ImageProxy image) {
                 int rotationDegrees = image.getImageInfo().getRotationDegrees();
                 //Log.d("DET", "Rotation degrees: " + String.valueOf(rotationDegrees));
-
-//                @SuppressLint("UnsafeExperimentalUsageError")
-//                Image androidImage = image.getImage();
-//                Bitmap bitmap = toBitmap(androidImage);
-//                Mat mat = FrameDetectorHelper.getDetectedImage(bitmap);
-//                Utils.matToBitmap(mat, bitmap);
-
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        drawableImageView.setImageBitmap(bitmap);
-//                        drawableImageView.setRotation(90);
-//                    }
-//                });
-
-                //image.close();
 
             }
         });

@@ -14,5 +14,7 @@
     <string name="no">no</string>
     <string name="load_photo">Load photo</string>
     <string name="saved_image_to_db">"Image successfully saved to db: %1$s "</string>
+    <string name="detected_count">"Detections count: %1$d "</string>
+    <string name="search_online">Do you want to search this phrase on-line?</string>
 
 </resources>
