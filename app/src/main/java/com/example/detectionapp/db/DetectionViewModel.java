@@ -9,18 +9,28 @@ import androidx.lifecycle.LiveData;
 import java.io.File;
 import java.util.List;
 
+
+
 public class DetectionViewModel extends AndroidViewModel {
 
     private AppRepository detectionRepository;
 
+    private int photoId;
     private LiveData<List<Detection>> detections;
 
     public DetectionViewModel(@NonNull Application application)
     {
         super(application);
         detectionRepository = new AppRepository(application);
+        this.photoId = photoId;
+
     }
 
+    public LiveData<List<Detection>> findAll(int photoId)
+    {
+        detections = detectionRepository.findAllDetections(photoId);
+        return detections;
+    }
 
 
     public void insert(Detection detection)

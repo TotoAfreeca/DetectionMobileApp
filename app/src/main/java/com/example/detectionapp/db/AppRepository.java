@@ -24,6 +24,10 @@ public class AppRepository {
         return photos;
     }
 
+    LiveData<List<Detection>> findAllDetections(int photoId)
+    {
+        return detectionDao.findAll(photoId);
+    }
     void insert(Photo photo){
         AppDatabase.databaseWriterExecutor.execute(() ->{
             photoDao.insert(photo);

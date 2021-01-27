@@ -68,33 +68,6 @@ public class PhotoListActivity extends AppCompatActivity {
 
 
 
-//    class GetAllPhotos extends AsyncTask<Void, Void, List<Photo>> {
-//
-//        protected List<Photo> doInBackground(Void... voids) {
-//            PhotoDao photoDao = db.getPhotoDao();
-//            photoList = photoDao.getAllAsc();
-//
-//            return photoList;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(List<Photo> result) {
-//
-//
-//
-//            recyclerView.setAdapter(myAdapter);
-//            recyclerView.setLayoutManager(new LinearLayoutManager(PhotoListActivity.this));
-//        }
-//    }
-
-//    @Override
-//    public void onResume()
-//    {
-//        super.onResume();
-//        new GetAllPhotos().execute();
-//    }
-
-
 
 
 }

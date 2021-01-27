@@ -1,6 +1,7 @@
 package com.example.detectionapp.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,6 +18,7 @@ import com.example.detectionapp.db.AppDatabase;
 import com.example.detectionapp.db.Detection;
 import com.example.detectionapp.db.DetectionDao;
 import com.example.detectionapp.db.DetectionViewModel;
+import com.example.detectionapp.db.Photo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,12 +59,17 @@ public class DetectionListActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         detectionViewModel = ViewModelProviders.of(this).get(DetectionViewModel.class);
-
+        detectionViewModel.findAll(photoId).observe(this, new Observer<List<Detection>>() {
+            @Override
+            public void onChanged(List<Detection> detections) {
+                myAdapter.setDetections(detections);
+            }
+        });
         detectButton = findViewById(R.id.button_detect);
 
         detectButton.setOnClickListener(v -> {
             apiHandler.getDetectionsFromServer(photoId, photoFilePath);
-            new GetDetectionsById().execute();
+            //new GetDetectionsById().execute();
         });
 
 
@@ -70,21 +77,21 @@ public class DetectionListActivity extends AppCompatActivity {
 
 
 
-    class GetDetectionsById extends AsyncTask<Void, Void, List<Detection>> {
-
-        protected List<Detection> doInBackground(Void... voids) {
-            DetectionDao detectionDao = db.getDetectionDao();
-            detectionList = detectionDao.findDetectionsForPhoto(photoId);
-            return detectionList;
-        }
-
-        @Override
-        protected void onPostExecute(List<Detection> result) {
-            DetectionAdapter myAdapter = new DetectionAdapter(DetectionListActivity.this, detectionList);
-            recyclerView.setAdapter(myAdapter);
-            recyclerView.setLayoutManager(new LinearLayoutManager(DetectionListActivity.this));
-        }
-    }
+//    class GetDetectionsById extends AsyncTask<Void, Void, List<Detection>> {
+//
+//        protected List<Detection> doInBackground(Void... voids) {
+//            DetectionDao detectionDao = db.getDetectionDao();
+//            detectionList = detectionDao.findDetectionsForPhoto(photoId);
+//            return detectionList;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(List<Detection> result) {
+//            DetectionAdapter myAdapter = new DetectionAdapter(DetectionListActivity.this, detectionList);
+//            recyclerView.setAdapter(myAdapter);
+//            recyclerView.setLayoutManager(new LinearLayoutManager(DetectionListActivity.this));
+//        }
+//    }
 
 
 
@@ -93,7 +100,7 @@ public class DetectionListActivity extends AppCompatActivity {
     {
         super.onResume();
         //new RefreshList().execute();
-        new GetDetectionsById().execute();
+        //new GetDetectionsById().execute();
     }
 
 

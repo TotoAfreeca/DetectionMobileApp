@@ -1,5 +1,6 @@
 package com.example.detectionapp.db;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -19,6 +20,9 @@ public interface DetectionDao {
 
     @Delete
     void delete(Detection... detections);
+
+    @Query("SELECT * FROM Detection WHERE photoId=:photoId")
+    public LiveData<List<Detection>> findAll(int photoId);
 
     @Query("SELECT * FROM Detection")
     List<Detection> getAllDetections();
