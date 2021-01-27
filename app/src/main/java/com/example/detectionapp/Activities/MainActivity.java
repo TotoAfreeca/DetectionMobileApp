@@ -1,6 +1,7 @@
 package com.example.detectionapp.Activities;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
@@ -21,8 +22,10 @@ import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import androidx.biometric.BiometricPrompt;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -40,15 +43,12 @@ import com.example.detectionapp.db.Photo;
 import com.example.detectionapp.db.PhotoViewModel;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import org.opencv.dnn.Net;
-
 import java.io.File;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import okhttp3.OkHttpClient;
-
 import static com.example.detectionapp.PathHelper.getPath;
 import static com.example.detectionapp.Utilities.getBatchDirectoryName;
 
@@ -59,8 +59,10 @@ public class MainActivity extends AppCompatActivity {
     private int REQUEST_CODE_PERMISSIONS = 1001;
     private final String[] REQUIRED_PERMISSIONS = new String[]{"android.permission.CAMERA", "android.permission.WRITE_EXTERNAL_STORAGE",
             "android.permission.READ_EXTERNAL_STORAGE", "android.permission.INTERNET" };
-    private Net mobileNet;
 
+    private Executor biometricsExecutor;
+    private BiometricPrompt biometricPrompt;
+    private BiometricPrompt.PromptInfo promptInfo;
 
     String selectedImagePath;
 
@@ -75,15 +77,10 @@ public class MainActivity extends AppCompatActivity {
     String photoName;
     String filePath;
 
-
-//    private SensorManager sensorManager;
-//    private Sensor lightSensor;
-//    private SensorEventListener lightEventListener;
-//    private float maxValue;
-
     private PhotoViewModel photoViewModel;
     private ApiHandler apiHandler;
 
+    @RequiresApi(api = Build.VERSION_CODES.R)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -114,17 +111,44 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intentList);
         });
 
-//        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-//        lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
-//
-//        if (lightSensor == null) {
-//            Toast.makeText(this, "The device has no light sensor !", Toast.LENGTH_SHORT).show();
-//            finish();
-//        }
-//
-//        // max value for light sensor
-//        maxValue = lightSensor.getMaximumRange();
+        executor = ContextCompat.getMainExecutor(this);
+        biometricPrompt = new BiometricPrompt(MainActivity.this,
+                executor, new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode,
+                                              @NonNull CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+                Toast.makeText(getApplicationContext(),
+                        "Authentication error: " + errString, Toast.LENGTH_SHORT)
+                        .show();
+                biometricPrompt.authenticate(promptInfo);
+            }
 
+            @Override
+            public void onAuthenticationSucceeded(
+                    @NonNull BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                Toast.makeText(getApplicationContext(),
+                        "Authentication succeeded!", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+                Toast.makeText(getApplicationContext(), "Authentication failed",
+                        Toast.LENGTH_SHORT)
+                        .show();
+                biometricPrompt.authenticate(promptInfo);
+            }
+        });
+
+        promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                .setTitle("Biometrics login")
+                .setSubtitle("Log in using your biometric credential")
+                .setDeviceCredentialAllowed(true)
+                .build();
+
+        biometricPrompt.authenticate(promptInfo);
     }
 
     private void startCamera() {
@@ -140,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
                     bindPreview(cameraProvider);
 
                 } catch (ExecutionException | InterruptedException e) {
-                    Log.d("Camer", "Error while starting the camera");
+                    Log.d("Camera", "Error while starting the camera");
                 }
             }
         }, ContextCompat.getMainExecutor(this));
@@ -279,20 +303,7 @@ public class MainActivity extends AppCompatActivity {
             Uri uri = data.getData();
             selectedImagePath = getPath(getApplicationContext(), uri);
 
-//            String postUrl= "http://"+"192.168.1.100:5000/api/test";
-//
-//            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-//            BitmapFactory.Options options = new BitmapFactory.Options();
-//            options.inPreferredConfig = Bitmap.Config.RGB_565;
-//            // Read BitMap by file path
-//            Bitmap bitmap = BitmapFactory.decodeFile(selectedImagePath, options);
-//            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-//            byte[] byteArray = stream.toByteArray();
-//
-//            RequestBody postBodyImage = new MultipartBody.Builder()
-//                    .setType(MultipartBody.FORM)
-//                    .addFormDataPart("image", "androidFlask.jpg", RequestBody.create(MediaType.parse("image/jpeg"), byteArray))
-//                    .build();
+            //Not working yet
             Photo photo = new Photo();
             photo.filepath = selectedImagePath;
             photo.filename = uri.getLastPathSegment();

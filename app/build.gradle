@@ -60,6 +60,10 @@ dependencies {
     //Ok http3
     implementation 'com.squareup.okhttp3:logging-interceptor:3.10.0'
 
+    //Biometrics
+    implementation 'androidx.biometric:biometric:1.0.0-rc01'
+
+
     //Gson
     implementation 'com.google.code.gson:gson:2.8.6'
 }
