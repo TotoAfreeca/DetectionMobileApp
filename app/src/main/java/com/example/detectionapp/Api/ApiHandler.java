@@ -4,29 +4,19 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Base64;
-import android.widget.Toast;
 
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProviders;
 
-import com.example.detectionapp.MainActivity;
 import com.example.detectionapp.db.Detection;
 import com.example.detectionapp.db.DetectionViewModel;
-import com.example.detectionapp.db.PhotoViewModel;
 import com.google.gson.Gson;
 
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -39,7 +29,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import static com.example.detectionapp.PathHelper.getPath;
 import static com.example.detectionapp.Utilities.getBatchDirectoryName;
 
 
@@ -67,7 +56,11 @@ public class ApiHandler {
         options.inPreferredConfig = Bitmap.Config.RGB_565;
         // Read BitMap by file path
 
-        Bitmap bitmap = BitmapFactory.decodeFile(selectedImagePath, options);
+        Uri uri=Uri.parse(selectedImagePath);
+
+
+        Bitmap bitmap = BitmapFactory.decodeFile(uri.getPath(), options);
+
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         byte[] byteArray = stream.toByteArray();
 
@@ -105,9 +98,8 @@ public class ApiHandler {
 
             @Override
             public void onResponse(Call call, final Response response) throws IOException {
-                // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
                 if (response.isSuccessful()){
-                    ;// Start processing the JSON object
+                    // Start processing the JSON object
                     DetectionListModel detectionList = new Gson().fromJson(response.body().string(), DetectionListModel.class);
                     List<DetectionModel> list = detectionList.getDetections();
 
@@ -126,56 +118,22 @@ public class ApiHandler {
 
                         String photoName = String.valueOf(System.currentTimeMillis());
                         File file = new File(getBatchDirectoryName(), photoName + "_detection.jpg");
-
+                        Uri savedUri = Uri.fromFile(file);
+                        String filePath = savedUri.toString();
                         try (FileOutputStream out = new FileOutputStream(file)) {
                             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out); // bmp is your Bitmap instance
-                            detection.filepath = photoName + "_detection.jpg";
+                            detection.filepath = filePath;
                             detectionViewModel.insert(detection);
                             // PNG is a lossless format, the compression factor (100) is ignored
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
 
-
-
-
-
-
                     }
-                    // Remember to set the bitmap in the main thread.
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-
-                        }
-                    });
                 }else {
                     //Handle the error
                 }
             }
         });
     }
-
-
-    String StreamToJson(InputStream stream)
-    {
-        try
-        {
-            BufferedReader br = new BufferedReader(new InputStreamReader(stream));
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = br.readLine()) != null) {
-                sb.append(line+"\n");
-            }
-            br.close();
-            return sb.toString();
-        }
-        catch (Exception e)
-        {
-
-        }
-        return "";
-
-    }
-
 }

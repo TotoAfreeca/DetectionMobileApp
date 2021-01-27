@@ -6,6 +6,7 @@
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -17,9 +18,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DetectionApp"
         android:usesCleartextTraffic="true">
-        <activity android:name=".FullScreenActivity"></activity>
+        <activity android:name=".DetectionListActivity"></activity>
+        <activity android:name=".FullScreenActivity" />
         <activity android:name=".PhotoListActivity" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".Activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

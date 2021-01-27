@@ -6,17 +6,14 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.graphics.Movie;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.Spinner;
 
-import com.example.detectionapp.R;
+import com.example.detectionapp.Recycler.DetectionAdapter;
 import com.example.detectionapp.Recycler.PhotoAdapter;
 import com.example.detectionapp.db.AppDatabase;
 import com.example.detectionapp.db.Photo;
-import com.example.detectionapp.db.PhotoDao;
 import com.example.detectionapp.db.PhotoViewModel;
 
 import java.util.ArrayList;

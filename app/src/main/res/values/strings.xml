@@ -7,4 +7,6 @@
     <string name="go_to_photos">Go to Photos </string>
     <string name="photo_created">Successfully saved photo</string>
     <string name="detect_photo">Detect</string>
+    <string name="sort">Sort</string>
+    <string name="get_detections">Get detections</string>
 </resources>

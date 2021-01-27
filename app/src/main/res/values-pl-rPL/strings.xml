@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DetectionApp</string>
+    <string name="take_photo">Zrób zdjęcie</string>
+    <string name="delete_photo_button">Usuń</string>
+    <string name="go_to_photos">Zobacz zdjęcia</string>
+    <string name="photo_created">Pomyślnie zapisano zdjęcie</string>
+    <string name="detect_photo">Wykryj</string>
+    <string name="capture">Zrób</string>
+    <string name="sort">Sortuj</string>
+    <string name="get_detections">Pobierz detekcje</string>
+</resources>

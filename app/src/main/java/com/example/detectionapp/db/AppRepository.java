@@ -5,6 +5,7 @@ import android.app.Application;
 import androidx.lifecycle.LiveData;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class AppRepository {
     private PhotoDao photoDao;
@@ -59,9 +60,13 @@ public class AppRepository {
             detectionDao.delete(detection);
         });
     }
-    void findDetectionsForPhoto(int photoId){
+
+    List<Detection> findDetectionsForPhoto(int photoId){
+        AtomicReference<List<Detection>> detectionsForPhoto = new AtomicReference<>();
         AppDatabase.databaseWriterExecutor.execute(() ->{
-            detectionDao.findDetectionsForPhoto(photoId);
+            detectionsForPhoto.set(detectionDao.findDetectionsForPhoto(photoId));
+
         });
+        return detectionsForPhoto.get();
     }
 }

@@ -6,13 +6,14 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
+import java.io.File;
 import java.util.List;
 
 public class DetectionViewModel extends AndroidViewModel {
 
     private AppRepository detectionRepository;
 
-    private LiveData<List<Photo>> detections;
+    private LiveData<List<Detection>> detections;
 
     public DetectionViewModel(@NonNull Application application)
     {
@@ -33,10 +34,14 @@ public class DetectionViewModel extends AndroidViewModel {
     }
     public void delete(Detection detection)
     {
+
         detectionRepository.delete(detection);
+        File file = new File(detection.filepath);
+        boolean deleted = file.delete();
     }
-    public void findDetectionsForPhoto( int photoId)
+
+    public List<Detection> findDetectionsForPhoto( int photoId)
     {
-        detectionRepository.findDetectionsForPhoto(photoId);
+        return detectionRepository.findDetectionsForPhoto(photoId);
     }
 }

@@ -3,8 +3,6 @@ package com.example.detectionapp.Recycler;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +17,7 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.detectionapp.Api.ApiHandler;
+import com.example.detectionapp.DetectionListActivity;
 import com.example.detectionapp.FullScreenActivity;
 import com.example.detectionapp.db.Photo;
 import com.example.detectionapp.R;
@@ -89,6 +88,12 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
         holder.detectButton.setOnClickListener(v ->{
             //get detected
+            Intent intent = new Intent(context,
+                    DetectionListActivity.class);
+            intent.putExtra("photoId", photos.get(position).uid);
+            intent.putExtra("filepath", photos.get(position).filepath);
+            context.startActivity(intent);
+
 
         });
         //holder.image.setImageResource(R.drawable.star_icon);

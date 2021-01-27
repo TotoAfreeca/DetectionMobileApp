@@ -1,4 +1,4 @@
-package com.example.detectionapp;
+package com.example.detectionapp.Activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,16 +14,13 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.room.Room;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.AssetManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 
+import android.hardware.Sensor;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -31,49 +28,27 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.util.Rational;
-import android.util.Size;
-import android.view.Surface;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.detectionapp.Api.ApiHandler;
+import com.example.detectionapp.PhotoListActivity;
+import com.example.detectionapp.R;
 import com.example.detectionapp.db.AppDatabase;
 import com.example.detectionapp.db.Photo;
-import com.example.detectionapp.db.PhotoDao;
 import com.example.detectionapp.db.PhotoViewModel;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import org.opencv.android.OpenCVLoader;
-import org.opencv.android.Utils;
-import org.opencv.core.Mat;
-import org.opencv.dnn.Dnn;
 import org.opencv.dnn.Net;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 
 import static com.example.detectionapp.PathHelper.getPath;
 import static com.example.detectionapp.Utilities.getBatchDirectoryName;
@@ -83,7 +58,8 @@ public class MainActivity extends AppCompatActivity {
 
     private Executor executor = Executors.newSingleThreadExecutor();
     private int REQUEST_CODE_PERMISSIONS = 1001;
-    private final String[] REQUIRED_PERMISSIONS = new String[]{"android.permission.CAMERA", "android.permission.WRITE_EXTERNAL_STORAGE"};
+    private final String[] REQUIRED_PERMISSIONS = new String[]{"android.permission.CAMERA", "android.permission.WRITE_EXTERNAL_STORAGE",
+            "android.permission.READ_EXTERNAL_STORAGE", "android.permission.INTERNET" };
     private Net mobileNet;
 
 
@@ -99,6 +75,12 @@ public class MainActivity extends AppCompatActivity {
     AppDatabase db;
     String photoName;
     String filePath;
+
+
+    private SensorManager sensorManager;
+    private Sensor lightSensor;
+    private SensorEventListener lightEventListener;
+    private float maxValue;
 
     private PhotoViewModel photoViewModel;
     private ApiHandler apiHandler;
@@ -132,6 +114,17 @@ public class MainActivity extends AppCompatActivity {
             Intent intentList = new Intent(this, PhotoListActivity.class);
             startActivity(intentList);
         });
+
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+
+        if (lightSensor == null) {
+            Toast.makeText(this, "The device has no light sensor !", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+
+        // max value for light sensor
+        maxValue = lightSensor.getMaximumRange();
 
     }
 
@@ -179,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void analyze(@NonNull ImageProxy image) {
                 int rotationDegrees = image.getImageInfo().getRotationDegrees();
-                Log.d("DET", "Rotation degrees: " + String.valueOf(rotationDegrees));
+                //Log.d("DET", "Rotation degrees: " + String.valueOf(rotationDegrees));
 
 //                @SuppressLint("UnsafeExperimentalUsageError")
 //                Image androidImage = image.getImage();
@@ -195,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
 //                    }
 //                });
 
-                image.close();
+                //image.close();
 
             }
         });
@@ -354,6 +347,17 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), selectedImagePath, Toast.LENGTH_LONG).show();
         }
     }
+
+    String getGalleryPath() {
+        File folder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
+
+        return folder.getAbsolutePath();
+    }
+
 
 
 

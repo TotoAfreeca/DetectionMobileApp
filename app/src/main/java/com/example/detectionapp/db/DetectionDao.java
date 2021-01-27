@@ -24,5 +24,5 @@ public interface DetectionDao {
     List<Detection> getAllDetections();
 
     @Query("SELECT * FROM Detection WHERE photoId=:photoId")
-    List<Detection> findDetectionsForPhoto(final int photoId);
+    List<Detection> findDetectionsForPhoto(int photoId);
 }

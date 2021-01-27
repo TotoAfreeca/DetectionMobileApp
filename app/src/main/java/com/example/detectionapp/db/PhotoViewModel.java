@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
+import java.io.File;
 import java.util.List;
 
 public class PhotoViewModel extends AndroidViewModel {
@@ -38,5 +39,8 @@ public class PhotoViewModel extends AndroidViewModel {
     public void delete(Photo photo)
     {
         photoRepository.delete(photo);
+
+        File file = new File(photo.filepath);
+        boolean deleted = file.delete();
     }
 }
