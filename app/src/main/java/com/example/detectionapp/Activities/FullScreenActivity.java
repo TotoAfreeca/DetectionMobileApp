@@ -1,4 +1,4 @@
-package com.example.detectionapp;
+package com.example.detectionapp.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -8,6 +8,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.detectionapp.R;
 import com.squareup.picasso.Picasso;
 
 public class FullScreenActivity extends AppCompatActivity {

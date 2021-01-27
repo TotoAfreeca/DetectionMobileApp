@@ -34,7 +34,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.detectionapp.Api.ApiHandler;
-import com.example.detectionapp.PhotoListActivity;
 import com.example.detectionapp.R;
 import com.example.detectionapp.db.AppDatabase;
 import com.example.detectionapp.db.Photo;
@@ -257,33 +256,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-//    private Bitmap toBitmap(Image image){
-//        Image.Plane[] planes = image.getPlanes();
-//        ByteBuffer yBuffer = planes[0].getBuffer();
-//        ByteBuffer uBuffer = planes[1].getBuffer();
-//        ByteBuffer vBuffer = planes[2].getBuffer();
-//
-//        int ySize = yBuffer.remaining();
-//        int uSize = uBuffer.remaining();
-//        int vSize = vBuffer.remaining();
-//
-//        byte[] nv21 = new byte[ySize + uSize + vSize];
-//        //U and V are swapped
-//        yBuffer.get(nv21, 0, ySize);
-//        vBuffer.get(nv21, ySize, vSize);
-//        uBuffer.get(nv21, ySize + vSize, uSize);
-//
-//        YuvImage yuvImage = new YuvImage(nv21, ImageFormat.NV21, image.getWidth(), image.getHeight(), null);
-//        ByteArrayOutputStream out = new ByteArrayOutputStream();
-//        yuvImage.compressToJpeg(new Rect(0, 0, yuvImage.getWidth(), yuvImage.getHeight()), 75, out);
-//
-//        byte[] imageBytes = out.toByteArray();
-//        return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-//    }
-
-
-
-
     private boolean allPermissionsGranted(){
 
         for(String permission : REQUIRED_PERMISSIONS){
@@ -339,7 +311,11 @@ public class MainActivity extends AppCompatActivity {
 //                    .setType(MultipartBody.FORM)
 //                    .addFormDataPart("image", "androidFlask.jpg", RequestBody.create(MediaType.parse("image/jpeg"), byteArray))
 //                    .build();
+            Photo photo = new Photo();
+            photo.filepath = selectedImagePath;
+            photo.filename = uri.getLastPathSegment();
 
+            photoViewModel.insert(photo);
             apiHandler.getDetectionsFromServer(1, selectedImagePath);
 
 
@@ -347,17 +323,6 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), selectedImagePath, Toast.LENGTH_LONG).show();
         }
     }
-
-    String getGalleryPath() {
-        File folder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
-
-        if (!folder.exists()) {
-            folder.mkdir();
-        }
-
-        return folder.getAbsolutePath();
-    }
-
 
 
 

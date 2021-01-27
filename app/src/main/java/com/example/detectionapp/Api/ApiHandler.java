@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.util.Base64;
+import android.util.Log;
 
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProviders;
@@ -110,7 +111,6 @@ public class ApiHandler {
                         detection.probability = Float.parseFloat(model.getProbability());
                         detection.photoId = photoId;
 
-                        //asdsfhggjhk.
                         String base64imgtrimmed = model.getImage().substring(1, model.getImage().length() -1 );
                         byte[] decodedString = Base64.decode(base64imgtrimmed, Base64.DEFAULT);
                         // Bitmap Image
@@ -131,7 +131,7 @@ public class ApiHandler {
 
                     }
                 }else {
-                    //Handle the error
+                    Log.d("Api", "Api error occurred");
                 }
             }
         });

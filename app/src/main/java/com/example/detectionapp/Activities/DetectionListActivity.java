@@ -1,7 +1,6 @@
-package com.example.detectionapp;
+package com.example.detectionapp.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -12,14 +11,12 @@ import android.widget.Button;
 import android.widget.Spinner;
 
 import com.example.detectionapp.Api.ApiHandler;
+import com.example.detectionapp.R;
 import com.example.detectionapp.Recycler.DetectionAdapter;
-import com.example.detectionapp.Recycler.PhotoAdapter;
 import com.example.detectionapp.db.AppDatabase;
 import com.example.detectionapp.db.Detection;
 import com.example.detectionapp.db.DetectionDao;
 import com.example.detectionapp.db.DetectionViewModel;
-import com.example.detectionapp.db.Photo;
-import com.example.detectionapp.db.PhotoViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,11 +64,6 @@ public class DetectionListActivity extends AppCompatActivity {
             apiHandler.getDetectionsFromServer(photoId, photoFilePath);
             new GetDetectionsById().execute();
         });
-
-
-
-//        db = AppDatabase.getDatabase(this);
-
 
 
     }

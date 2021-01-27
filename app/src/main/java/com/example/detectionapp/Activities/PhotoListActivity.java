@@ -1,4 +1,4 @@
-package com.example.detectionapp;
+package com.example.detectionapp.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
@@ -10,7 +10,7 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.Spinner;
 
-import com.example.detectionapp.Recycler.DetectionAdapter;
+import com.example.detectionapp.R;
 import com.example.detectionapp.Recycler.PhotoAdapter;
 import com.example.detectionapp.db.AppDatabase;
 import com.example.detectionapp.db.Photo;

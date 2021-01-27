@@ -16,7 +16,7 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.detectionapp.Api.ApiHandler;
-import com.example.detectionapp.FullScreenActivity;
+import com.example.detectionapp.Activities.FullScreenActivity;
 import com.example.detectionapp.R;
 import com.example.detectionapp.db.Detection;
 import com.example.detectionapp.db.DetectionViewModel;

@@ -17,8 +17,8 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.detectionapp.Api.ApiHandler;
-import com.example.detectionapp.DetectionListActivity;
-import com.example.detectionapp.FullScreenActivity;
+import com.example.detectionapp.Activities.DetectionListActivity;
+import com.example.detectionapp.Activities.FullScreenActivity;
 import com.example.detectionapp.db.Photo;
 import com.example.detectionapp.R;
 import com.example.detectionapp.db.PhotoViewModel;
