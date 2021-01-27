@@ -76,10 +76,10 @@ public class MainActivity extends AppCompatActivity {
     String filePath;
 
 
-    private SensorManager sensorManager;
-    private Sensor lightSensor;
-    private SensorEventListener lightEventListener;
-    private float maxValue;
+//    private SensorManager sensorManager;
+//    private Sensor lightSensor;
+//    private SensorEventListener lightEventListener;
+//    private float maxValue;
 
     private PhotoViewModel photoViewModel;
     private ApiHandler apiHandler;
@@ -114,16 +114,16 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intentList);
         });
 
-        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
-
-        if (lightSensor == null) {
-            Toast.makeText(this, "The device has no light sensor !", Toast.LENGTH_SHORT).show();
-            finish();
-        }
-
-        // max value for light sensor
-        maxValue = lightSensor.getMaximumRange();
+//        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+//        lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+//
+//        if (lightSensor == null) {
+//            Toast.makeText(this, "The device has no light sensor !", Toast.LENGTH_SHORT).show();
+//            finish();
+//        }
+//
+//        // max value for light sensor
+//        maxValue = lightSensor.getMaximumRange();
 
     }
 
@@ -221,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             new AddPhoto().execute();
-                            Toast.makeText(MainActivity.this, "Image Saved successfully at: "+ savedUri, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, R.string.saved_image_to_db, Toast.LENGTH_SHORT).show();
                         }
                     });
                 }

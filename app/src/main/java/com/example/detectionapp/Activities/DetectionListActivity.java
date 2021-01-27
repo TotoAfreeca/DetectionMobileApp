@@ -6,10 +6,13 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.example.detectionapp.Api.ApiHandler;
 import com.example.detectionapp.R;
@@ -32,10 +35,10 @@ public class DetectionListActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     List<Detection> detectionList = new ArrayList<Detection>();;
     ArrayList<String> listNames;
-    AppDatabase db;
     String m_Text;
     int photoId;
     String photoFilePath;
+    TextView detectionsCount;
 
     private DetectionViewModel detectionViewModel;
     ApiHandler apiHandler;
@@ -44,7 +47,7 @@ public class DetectionListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detection_list);
-        db = AppDatabase.getDatabase(this);
+
 
 
 
@@ -63,37 +66,45 @@ public class DetectionListActivity extends AppCompatActivity {
             @Override
             public void onChanged(List<Detection> detections) {
                 myAdapter.setDetections(detections);
+                detections.size();
+                detectionsCount.setText("test");
+
             }
         });
         detectButton = findViewById(R.id.button_detect);
 
         detectButton.setOnClickListener(v -> {
-            apiHandler.getDetectionsFromServer(photoId, photoFilePath);
-            //new GetDetectionsById().execute();
+            AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
+            builder1.setMessage(R.string.get_detections_dialog);
+            builder1.setCancelable(true);
+
+            builder1.setPositiveButton(
+                    R.string.yes,
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+
+                            apiHandler.getDetectionsFromServer(photoId, photoFilePath);
+                            dialog.cancel();
+                        }
+                    });
+
+            builder1.setNegativeButton(
+                    R.string.no,
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                        }
+                    });
+
+            AlertDialog alert11 = builder1.create();
+            alert11.show();
+
+
+
         });
 
 
     }
-
-
-
-//    class GetDetectionsById extends AsyncTask<Void, Void, List<Detection>> {
-//
-//        protected List<Detection> doInBackground(Void... voids) {
-//            DetectionDao detectionDao = db.getDetectionDao();
-//            detectionList = detectionDao.findDetectionsForPhoto(photoId);
-//            return detectionList;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(List<Detection> result) {
-//            DetectionAdapter myAdapter = new DetectionAdapter(DetectionListActivity.this, detectionList);
-//            recyclerView.setAdapter(myAdapter);
-//            recyclerView.setLayoutManager(new LinearLayoutManager(DetectionListActivity.this));
-//        }
-//    }
-
-
 
     @Override
     public void onResume()

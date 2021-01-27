@@ -64,7 +64,7 @@
             android:layout_height="fill_parent"
             android:layout_weight=".35"
             android:onClick="selectImage"
-            android:text="Load Photo" />
+            android:text="@string/load_photo" />
 
         <androidx.cardview.widget.CardView
             android:id="@+id/capture"

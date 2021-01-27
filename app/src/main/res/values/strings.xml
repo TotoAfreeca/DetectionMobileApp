@@ -9,4 +9,10 @@
     <string name="detect_photo">Detect</string>
     <string name="sort">Sort</string>
     <string name="get_detections">Get detections</string>
+    <string name="get_detections_dialog">Are you sure you want to download detections?</string>
+    <string name="yes">yes</string>
+    <string name="no">no</string>
+    <string name="load_photo">Load photo</string>
+    <string name="saved_image_to_db">"Image successfully saved to db: %1$s "</string>
+
 </resources>
